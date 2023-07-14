@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My App</title>
+    <script>
+        setInterval(function() {
+            $.getJSON('/update_messages', function(data) {
+                var messages = $('#messages');
+                messages.empty();
+                $.each(data, function(index, message) {
+                    var messageDiv = $('<div class="message"></div>');
+                    messageDiv.addClass(message[1] == '{{ session["username"] }}' ? 'sent' : 'received');
+                    messageDiv.append($('<p></p>').text(message[2]));
+                    messageDiv.append($('<span class="time"></span>').text(message[3]));
+                    messages.append(messageDiv);
+                });
+            });
+        }, 1000);
+    </script>
+  </head>
+  <body>
+    <h1>Welcome, {{ username }}!</h1>
+    <form method="POST" action="/send">
+      <input type="text" name="message" placeholder="Type your message here" required>
+      <br>
+      <button type="submit">Send</button>
+    </form>
+    <br>
+    <div id="messages">
+        {% for message in messages %}
+            <div class="message {% if message[0] == username %}sent{% else %}received{% endif %}">
+                <p>{{ message[1] }}: {{ message[2] }}</p>
+                <span class="time">{{ message[3] }}</span>
+            </div>
+        {% endfor %}
+    </div>
+    <br>
+    <a href="/logout">Log Out</a>
+  </body>
+</html>
